@@ -37,7 +37,7 @@ time.sleep(2.0)
 
 def drawLine(frame):
     for i in range(10,600,60):
-        cv2.line(frame,(400,i),(400,i+30),(80,80,80),20)
+        cv2.line(frame,(390,i),(390,i+30),(80,80,80),20)
     cv2.rectangle(frame,(10,10),(790,590),(0,0,0),20)
 
 
@@ -184,8 +184,8 @@ while True:
         thickness = int(np.sqrt(10 / float(i + 1)) * 2.5)
         cv2.line(frame, ptsL[i - 1], ptsL[i], (240,128,128), thickness)  
         #if dYL !=0 or dYR !=0:     
-    # show the movement deltas and the directionR of movement on
-#print("dirL:  " + directionL + "     dYL:  " + str(dYL) +  "     dirR:  " +  directionR + "     " +   "     dYR:  " + str(dYR))
+        # show the movement deltas and the directionR of movement on
+	#print("dirL:  " + directionL + "     dYL:  " + str(dYL) +  "     dirR:  " +  directionR + "     " +   "     dYR:  " + str(dYR))
         
         # show the frame to our screen and increment the frame counterR
     blank_image = np.zeros((600,800,3), np.uint8)
@@ -204,6 +204,9 @@ while True:
     drawLine(frame)     
     updateM(frame)
     #cv2.imwrite(str(jp)+".jpg",frame)
+
+    cv2.putText(frame,str(ctrl.getScore()[0]), (300,80), cv2.FONT_HERSHEY_DUPLEX, 2, (255,255,255))
+    cv2.putText(frame,str(ctrl.getScore()[1]), (450,80), cv2.FONT_HERSHEY_DUPLEX, 2, (255,255,255))
     cv2.imshow("Pong", frame)
     key = cv2.waitKey(1) & 0xFF
     counterR += 1

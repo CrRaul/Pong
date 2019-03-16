@@ -14,9 +14,13 @@ class ControllerPong():
         self.__dimBall = dimBall
         self.__w = w
         self.__h = h
-        self.__direction = 0
-
-        self.__speed = 2
+     
+        self.__speed = [random.uniform(-3,-2),random.uniform(-1.5,-2)]
+	
+        if random.uniform(0,1) < 0.5:
+            self.__speed[0] *= -1
+		
+        self.__score = [0, 0]
    
     def reset(self):
         self.__posBall = [self.__w // 2, self.__h // 2]
@@ -26,49 +30,56 @@ class ControllerPong():
         self.__posBall[0] = self.__w // 2
         self.__posBall[1] = self.__h // 2
     
-        self.__direction = random.randrange(-45,45)
+        self.__speed = [random.uniform(-3,-2),random.uniform(-1.5,-2)]
 	
-        if random.randrange(2) == 0 :
-            # Reverse ball direction, let the other guy get it first
-            self.__direction += 180
+        if random.uniform(0,1) < 0.5:
+            self.__speed[0] *= -1
 
-        self.__speed = 2
-    
+        print(self.__score)
 
 
     def update(self, numOfPlayers = 2):
-        direction_radians = math.radians(self.__direction) 
 
-        # Change the position (x and y) according to the speed and direction
-        self.__posBall[1] += self.__speed * math.sin(direction_radians)
-        self.__posBall[0] -= self.__speed * math.cos(direction_radians)
+        self.__posBall[0] += self.__speed[0]
+        self.__posBall[1] += self.__speed[1]
+	
+	# left   
+        if self.__posBall[0] < 5:
+            self.reset()
+            self.__score[1] += 1
+    	# righr
+        if self.__posBall[0] > self.__w - 5:
+            self.reset()	
+            self.__score[0] += 1
 
 
+	# up
         if self.__posBall[1] < 10:
-            self.__direction = (180-self.__direction)%360
-            
+            self.__speed[1] *= -1
+            if self.__speed[0] < 0:
+                self.__speed[0] -= 0.2
+            else:
+                 self.__speed[0] += 0.2
+	# down
         if self.__posBall[1] > self.__h - 10:
-            self.__direction = (180-self.__direction)%360
-            
-    	
+            self.__speed[1] *= -1
+            if self.__speed[0] < 0:
+                self.__speed[0] -= 0.2
+            else:
+                 self.__speed[0] += 0.2
 	
-    #outside left   
-        if self.__posBall[0] < 10:
-            self.reset()
-    #righr
-        if self.__posBall[0] > self.__w - 10:
-            self.reset()
-    	
-	
+
+	# player left
         if self.__posBall[0] <= 10:
             if self.__posBall[1] + self.__dimBall//2 >= self.__posL[1] and self.__posBall[1] + self.__dimBall//2 <= self.__posL[1] + self.__dimPad:
-                self.__direction = (360-self.__direction)%360
+                self.__speed[0] *= -1
 	
-	
+	# player right
         if self.__posBall[0] >= self.__w - 10:
             if self.__posBall[1] + self.__dimBall//2 >= self.__posR[1] and self.__posBall[1] + self.__dimBall//2 <=  self.__posR[1] + self.__dimPad:
-                self.__direction = (360-self.__direction)%360
-    		
+                self.__speed[0] *= -1
+	
+	
 		
     def learnL(self):
         pass
@@ -81,13 +92,16 @@ class ControllerPong():
     def getPadPosR(self):
         return self.__posR
 
+    def getScore(self):
+        return self.__score
+
     def moveL(self, v):
-        if self.__posL[1] - v // 3  > 20 and self.__posL[1] - v//3 < self.__h - 20 - self.__dimPad:
-            self.__posL[1] -= v // 3
+        if self.__posL[1] - v // 5  > 20 and self.__posL[1] - v//5 < self.__h - 20 - self.__dimPad:
+            self.__posL[1] -= v // 5
     
     def moveR(self, v):
-        if self.__posR[1] - v // 3  > 20 and self.__posR[1] - v//3 < self.__h - 20 - self.__dimPad:
-            self.__posR[1] -= v // 3
+        if self.__posR[1] - v // 5  > 20 and self.__posR[1] - v//5 < self.__h - 20 - self.__dimPad:
+            self.__posR[1] -= v // 5
 
 
 
