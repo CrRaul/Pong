@@ -5,7 +5,14 @@ from nn import *
 class ControllerPong():
     def __init__(self, w, h, dimPad, dimBall):
         
-        self.__nn = nn(5,5,5,5)
+	# in
+	# x ball
+	# y ball
+	# x player
+	# y player
+	# out
+	# speed
+        self.__nn = nn(4,36,1,0.016)
 
         self.__posBall = [w // 2, h // 2]
         self.__posL = [10, h // 2]
@@ -38,7 +45,7 @@ class ControllerPong():
         print(self.__score)
 
 
-    def update(self, numOfPlayers = 2):
+    def update(self):
 
         self.__posBall[0] += self.__speed[0]
         self.__posBall[1] += self.__speed[1]
@@ -81,9 +88,31 @@ class ControllerPong():
 	
 	
 		
-    def learnL(self):
-        pass
+    def learnL(self, v):
+        inp = [self.__posBall[0], self.__posBall[1], self.__posR[0], self.__posR[1]]
+
+        self.__nn.train(inp, [[v]])    
+
+    def moveAiL(self):
+        inp = [self.__posBall[0], self.__posBall[1], self.__posL[0], self.__posL[1]]
 	
+        vv = self.__nn.query(inp)        
+        v=vv[0][0]
+        v-=0.5
+        print(v)
+        if self.__posL[1] - int(v * 20)  >= 10 and self.__posL[1] - int(v * 20) + self.__dimPad <= self.__h - 10:
+                print("*")
+                self.__posL[1] -= int(v * 10)
+	
+
+    def moveL(self, v):
+        if self.__posL[1] - v // 5  > 20 and self.__posL[1] - v//5 < self.__h - 20 - self.__dimPad:
+            self.__posL[1] -= v // 5
+    
+    def moveR(self, v):
+        if self.__posR[1] - v // 5  > 20 and self.__posR[1] - v//5 < self.__h - 20 - self.__dimPad:
+            self.__posR[1] -= v // 5
+
 	
     def getBallPos(self):
         return self.__posBall
@@ -95,13 +124,7 @@ class ControllerPong():
     def getScore(self):
         return self.__score
 
-    def moveL(self, v):
-        if self.__posL[1] - v // 5  > 20 and self.__posL[1] - v//5 < self.__h - 20 - self.__dimPad:
-            self.__posL[1] -= v // 5
     
-    def moveR(self, v):
-        if self.__posR[1] - v // 5  > 20 and self.__posR[1] - v//5 < self.__h - 20 - self.__dimPad:
-            self.__posR[1] -= v // 5
 
 
 

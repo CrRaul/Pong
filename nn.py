@@ -30,7 +30,7 @@ class nn:
 
 
     def query(self, inputs_list):
-        inputs = numpy.array(inputs_list, ndmin = 2).T
+        inputs = numpy.array(inputs_list, ndmin = 2,dtype=numpy.int64).T
 
         hidden_inputs = numpy.dot(self.wih, inputs)
         hidden_outputs = self.activationFunction(hidden_inputs)

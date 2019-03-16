@@ -20,7 +20,7 @@ greenUpper = (80,255,255)
 blueLower = (100,100,100)
 blueUpper = (180,255,255)
 
-singlePlayer = False
+singlePlayer = True
 
 # initialize the list of tracked points, the frame counterR,
 # and the coordinate deltas
@@ -196,7 +196,8 @@ while True:
     if singlePlayer == False:
             ctrl.moveL(dYL)
     else:
-        ctrl.learL()
+        if ctrl.getBallPos()[0] > 400:
+            ctrl.learnL(dYR)
         ctrl.moveAiL()
         
     ctrl.moveR(dYR)
