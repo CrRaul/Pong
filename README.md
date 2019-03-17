@@ -1,2 +1,3 @@
 # Pong
-pong
+'q'  -   exit
+'r'  -   restart
