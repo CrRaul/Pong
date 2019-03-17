@@ -1,4 +1,3 @@
-    
 from collections import deque
 from imutils.video import VideoStream
 import numpy as np
@@ -9,7 +8,7 @@ import copy
 import time
 from ControllerPong import *
 
-ctrl = ControllerPong(800,600,50,20)
+ctrl = ControllerPong(800,600,50,20,20)
     
 
 # define the lower and upper boundaries of the "green"
@@ -20,8 +19,8 @@ greenUpper = (80,255,255)
 blueLower = (100,100,100)
 blueUpper = (180,255,255)
 
-singlePlayer = True
-
+singlePlayer = False
+restart = True
 # initialize the list of tracked points, the frame counterR,
 # and the coordinate deltas
 ptsR = deque(maxlen=20)
@@ -34,6 +33,12 @@ vs = VideoStream(src=0).start()
 
 # allow the camera or video file to warm up
 time.sleep(2.0)
+
+def drawInit(frame):
+    cv2.circle(frame, (450,220), 25, (255,0,0),4)
+    cv2.circle(frame, (450,350), 25, (0,255,0),4)
+    cv2.putText(frame,"1", (480,230), cv2.FONT_HERSHEY_DUPLEX, 1, (255,0,0))
+    cv2.putText(frame,"2", (480,360), cv2.FONT_HERSHEY_DUPLEX, 1, (0,255,0))
 
 def drawLine(frame):
     for i in range(10,600,60):
@@ -49,10 +54,10 @@ def updateM(frame):
     posL = ctrl.getPadPosL()
     posR = ctrl.getPadPosR()
     posB = ctrl.getBallPos()
-        
+    
     cv2.circle(frame, (int(posB[0]), int(posB[1])), 5, (0,0,0),20)
-    cv2.line(frame,(posL[0],posL[1]),(posL[0], posL[1]+50),(0,255,0),20)
-    cv2.line(frame,(posR[0],posR[1]),(posR[0], posR[1]+50),(0,0,255),20)
+    cv2.line(frame,(posL[0]+10,posL[1]),(posL[0]+10, posL[1]+50),(0,255,0),20)
+    cv2.line(frame,(posR[0]+10,posR[1]),(posR[0]+10, posR[1]+50),(0,0,255),20)
 
 
 jp = 0
@@ -103,7 +108,7 @@ while True:
         # only proceed if the radius meets a minimum size
         if radiusR > 10:
             ptsR.appendleft(centerR)
-            
+            cv2.putText(frame,str(ctrl.getScore()[0]), (300,80), cv2.FONT_HERSHEY_DUPLEX, 2, (255,255,255))
     # only proceed if at least one contour was found
     if len(cntsL) > 0:
         # find the largest contour in the maskR, then use
@@ -192,32 +197,46 @@ while True:
     blank_image[:,:] = (255,255,255)
 
     frame = cv2.addWeighted(frame, 0.4, blank_image, 0.4, 0)
-        
-    if singlePlayer == False:
-            ctrl.moveL(dYL)
+    if restart == True:
+        drawInit(frame)
+        try:
+            if ptsR[0][0] >= 450 and ptsR[0][0] <= 475 and ptsR[0][1] >= 220 and ptsR[0][1] <= 255:
+                restart = False
+                singlePlayer = False
+            if ptsR[0][0] >= 450 and ptsR[0][0] <= 475 and ptsR[0][1] >= 350 and ptsR[0][1] <= 375:
+                restart = False
+                singlePlayer = False
+        except:
+            pass
     else:
-        if ctrl.getBallPos()[0] > 400:
-            ctrl.learnL(dYR)
-        ctrl.moveAiL()
+        if singlePlayer == False:
+                ctrl.moveL(dYL)
+        else:
+            if ctrl.getBallPos()[0] > 400:
+                ctrl.learnL(dYR)
+            ctrl.moveAiL()
         
-    ctrl.moveR(dYR)
+        ctrl.moveR(dYR)
 
-    drawLine(frame)     
-    updateM(frame)
+    drawLine(frame)  
+    if restart == False:
+        updateM(frame)
     #cv2.imwrite(str(jp)+".jpg",frame)
 
     cv2.putText(frame,str(ctrl.getScore()[0]), (300,80), cv2.FONT_HERSHEY_DUPLEX, 2, (255,255,255))
     cv2.putText(frame,str(ctrl.getScore()[1]), (450,80), cv2.FONT_HERSHEY_DUPLEX, 2, (255,255,255))
     cv2.imshow("Pong", frame)
-    key = cv2.waitKey(1) & 0xFF
+    
     counterR += 1
     counterL += 1
     jp+=1
+    
 
     # if the 'q' key is pressed, stop the loop
-    if key == ord("q"):
+    if cv2.waitKey(1) & 0xFF == ord("q"):
         break
-
+    if cv2.waitKey(10) & 0xFF == ord('r'):
+        restart = True
 
 # close all windows
 cv2.destroyAllWindows()
